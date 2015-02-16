@@ -1,13 +1,13 @@
 {
   "name": "Url",
   "2D": true,
-  "3D": true,
+  "3D": false,
   "platform": "HTML",
-  "version": "0.0.1",
+  "version": "0.1",
   "author": "MAGIS NC www.magis.nc",
-  "description": "Widget to deal with URL params",
+  "description": "Widget to deal with URL params, navigator's history and extent tracking",
   "copyright": "",
-  "license": "http://www.apache.org/licenses/LICENSE-2.0",
+  "license": "GPL V2",
   "properties": {
     "inPanel": false,
     "hasConfig": true,

@@ -1,5 +1,7 @@
 # esri-webappbuilder-widget-url
-Widget Url (extent tracking in URL and communication between url and others widgets) for WebApp Builder for Arcgis
+Widget Url (extent tracking in URL and communication between url and others widgets) for WebApp Builder for Arcgis.
+Made by MAGIS SARL, New Caledonia. www.magis.nc
+Licence GPL V2 (see LICENSE file)
 
 This is a javascript widget for the WebApp Builder for Arcgis.
 https://developers.arcgis.com/web-appbuilder/guide/xt-welcome.htm
