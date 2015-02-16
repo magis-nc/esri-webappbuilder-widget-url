@@ -1,0 +1,21 @@
+{
+  "name": "Url",
+  "2D": true,
+  "3D": true,
+  "platform": "HTML",
+  "version": "0.0.1",
+  "author": "MAGIS NC www.magis.nc",
+  "description": "Widget to deal with URL params",
+  "copyright": "",
+  "license": "http://www.apache.org/licenses/LICENSE-2.0",
+  "properties": {
+    "inPanel": false,
+    "hasConfig": true,
+	"hasStyle":false,
+	"hasUIFile":false,
+	"hasSettingPage":true,
+	"hasSettingUIFile":true,
+	"hasSettingLocale":true,
+	"hasSettingStyle":true
+  }
+}

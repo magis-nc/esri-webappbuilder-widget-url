@@ -1,0 +1,32 @@
+<div style="width:100%;">
+  <div class="instruction">
+    <span class="instruction-inner">${nls.instruction}</span>
+  </div>
+  <div class="url-setting-content" data-dojo-attach-point="contentNode">
+		<ul class="settings">
+			<li>
+				<span class="label">${nls.label_extentTracking}</span>
+				<span class="input">
+					<select data-dojo-attach-point="extentNode" class="jimu-input">
+						<option value="1">${nls.label_extentTracking_option1}</value>
+						<option value="2">${nls.label_extentTracking_option2}</value>
+						<option value="0">${nls.label_extentTracking_option0}</value>
+					</select>
+				</span>
+			</li>
+			<li class="separator"></li>
+			<li>
+				<span class="label">${nls.publishData}</span>
+				<span class="input">
+					<input type="checkbox" class="jimu-input" data-dojo-attach-point="publishDataNode" checked="checked" value="1" />
+				</span> 
+			</li>
+			<li>
+				<span class="label">${nls.listenData}</span>
+				<span class="input">
+					<input type="checkbox" class="jimu-input" data-dojo-attach-point="listenDataNode" checked="checked" value="1" />
+				</span> 
+			</li>
+		</ul>
+  </div>
+</div>

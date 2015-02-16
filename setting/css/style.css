@@ -1,0 +1,40 @@
+.jimu-widget-url-setting{
+  margin:0;
+  padding:0;
+  font-size:14px;
+  margin-top: 20px;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+.jimu-widget-url-setting .instruction span{
+	color: #596679;
+}
+
+.jimu-widget-url-setting .settings{
+	list-style-type:none;
+	display:table;
+	width:95%;
+}
+.jimu-widget-url-setting .settings > li{
+	display:table-row;
+	width:100%;
+}
+.jimu-widget-url-setting .settings > li .separator{
+	height:10px;
+	background-color:#006B91;
+}
+.jimu-widget-url-setting .settings > li .label{
+	display:table-cell;
+	text-align:right;
+	font-weight:bold;
+	padding-right:15px;
+}
+.jimu-widget-url-setting .settings > li .input{
+	display:table-cell;
+	min-width:100px;
+	text-align:left;
+	vertical-align:middle;
+}
