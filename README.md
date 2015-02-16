@@ -57,3 +57,14 @@ Example of data sent :
 ```
 NB : the type can be start (on page load) or update.
 
+
+### Installation
+The url folder must be added in widgets directory.
+
+If added in the WebApp builder Developper edition :
+- add the widget to client/stemapp/widgets
+- add url in available widgets in client/stemapp/widgets/list.json
+
+
+NB : the widget has no UI. It must be added in the config.json manually (in WidgetOnScreen section).
+If added in the WebApp builder Developper edition, you can do this in the client/stemapp/config.json : teh widget will be available on webApp Builder editor.
