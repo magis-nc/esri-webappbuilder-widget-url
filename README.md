@@ -61,12 +61,38 @@ NB : the type can be start (on page load) or update.
 
 
 ### Installation
-The url folder must be added in widgets directory.
+The widget has no UI. It must be added in the config.json manually (in WidgetOnScreen section).
 
-If added in the WebApp builder Developper edition :
-- add the widget to client/stemapp/widgets
-- add url in available widgets in client/stemapp/widgets/list.json
+The url folder must be added in widgets directory and added in your config.json, in widgetsOnScreen section.
+
+config.json
+```
+"widgetOnScreen": {
+    "widgets": [
+	{
+		"uri": "widgets/Url/Widget"
+	}, 
+	...
+	...
+	...
+```	
+
+To enable it in the WebApp builderb (wab) Developper edition builder :
+- add the widget to client/stemapp/widgets folder
+- (wab < 1.1) : Like in stemapp, add the url in builder default config.json : client\builder\predefined-apps\default2DApp\config.json
+- (wab >= 1.1) : Like in stemapp, add the url in builder default config.json : client\stemapp\predefined-apps\default\config.json
+
+NB : if you want the widget to be available but not active by default, add the visible parameter on false in config.json (stemapp and default app) :
+```
+"widgetOnScreen": {
+    "widgets": [
+	{
+		"uri": "widgets/Url/Widget",
+		"visible": false
+	}, 
+	...
+	...
+	...
+```	
 
 
-NB : the widget has no UI. It must be added in the config.json manually (in WidgetOnScreen section).
-If added in the WebApp builder Developper edition, you can do this in the client/stemapp/config.json : teh widget will be available on webApp Builder editor.
