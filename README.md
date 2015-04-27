@@ -11,8 +11,8 @@ This widget tracks parameters in url (in navigator history).
 ## Extent tracking
 The widget tracks extent's changes in map (in map's projection). 
 2 modes availables :
-- extent parameter (4 coordinates separated by commas)
-- center (2 coordinates separated by a comma) and scale parameters
+- extent parameter (4 coordinates + projection (wkid) separated by commas)
+- center (2 coordinates + projection (wkid) separated by a comma) and scale parameters
 When the user navigates with return or forward buttons of the web browser, the map goes to previous or next extent without page reloading.
 When extent param(s) are in url on page loading, the map goes to this extent.
 
@@ -33,13 +33,14 @@ Example of correct data received :
             "myVar":"value",
             "myNumber":1        
         },
-        "eraseMode":false
+        "eraseMode":true
     }
 }
 ```
 NB : the eraseMode is optionnal. (default = false)
 If set to true, all other parameters in current url are dropped.
 If set to false (or not set), the parameters in data are added in url without removing the currents.
+This example will make this in url params : ?myVar=value&myNumber=1
 
 
 ### Sending to other widgets
@@ -59,6 +60,10 @@ Example of data sent :
 ```
 NB : the type can be start (on page load) or update.
 
+Example of listening use :
+A search widget send string searched in url when user submit a search (search=mysearch)
+If the user go back in his browser's history, the url widget send the previous search and the search widget can relaunch this previous search.
+
 
 ### Installation
 The widget has no UI. It must be added in the config.json manually (in WidgetOnScreen section).
@@ -77,10 +82,11 @@ config.json
 	...
 ```	
 
-To enable it in the WebApp builderb (wab) Developper edition builder :
-- add the widget to client/stemapp/widgets folder
-- (wab < 1.1) : Like in stemapp, add the url in builder default config.json : client\builder\predefined-apps\default2DApp\config.json
-- (wab >= 1.1) : Like in stemapp, add the url in builder default config.json : client\stemapp\predefined-apps\default\config.json
+To enable it in the WebApp builder (wab) Developper edition builder :
+- add the widget to client\stemapp\widgets folder
+- in client\stemapp\config.json : in widgetOnScreen section, add the Url widget
+- (wab < 1.1) : Like in stemapp config.json, add the url in builder default config.json : client\builder\predefined-apps\default2DApp\config.json
+- (wab >= 1.1) : Like in stemapp config.json, add the url in builder default config.json : client\stemapp\predefined-apps\default\config.json
 
 NB : if you want the widget to be available but not active by default, add the visible parameter on false in config.json (stemapp and default app) :
 ```
