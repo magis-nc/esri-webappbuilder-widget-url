@@ -364,8 +364,14 @@ define([
 				
 				if(!window.history || !window.history.pushState)
 					return false;
-					
+				
+				//Push in browser history
 				window.history.pushState(this._CURRENT_URL.params, history_name, url);
+				
+				// Push in wab url params object
+				if(window.queryObject)
+					window.queryObject = this._CURRENT_URL.params;
+				
 				return url;
 			},
             updateParam: function (param_name, param_value, history_name) {
