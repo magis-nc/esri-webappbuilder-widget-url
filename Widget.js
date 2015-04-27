@@ -176,12 +176,16 @@ define([
 					
 					//Extent control
 					var tab = extent_string.split(",");
-					if(tab.length!=4)
+					if(tab.length!=4 && tab.length!=5)
 						return false;
 					for(var i in tab){
 						if(isNaN(tab[i]))
 							return false;
 					}
+					
+					//If wkid passed and wkid different from map do nothing
+					if(tab[4] && this.map.spatialReference.wkid != tab[4])
+						return false;
 					
 					//Ask slot for map extent changing to do nothing !
 					this._notTrackMap = true;
@@ -198,7 +202,7 @@ define([
 					var deferred = this.map.setExtent(ext);
 						
 					//Use defer to re-enable map tracking after centered 
-					deferred.then(lang.hitch(this, function(){this._notTrackMap=false;}));
+					deferred.then(this._enableMapTracking);
 							
 				}
 				else{
@@ -208,7 +212,11 @@ define([
 					var p_c = center_string.split(",");
 					var p_s = scale_string;
 					
-					if(p_c.length==2 && !isNaN(p_c[0]) && !isNaN(p_c[1]) && !isNaN(p_s)){					
+					if((p_c.length==2 || p_c.length==3) && !isNaN(p_c[0]) && !isNaN(p_c[1]) && !isNaN(p_s)){					
+						//If wkid passed and wkid different from map do nothing
+						if(p_c[2] && p_c[2] != this.map.spatialReference.wkid)
+							return false;
+						
 						//Ask slot for map extent changing to do nothing !
 						this._notTrackMap = true;
 						
@@ -220,10 +228,14 @@ define([
 						var deferred =this.map.centerAt(pt);
 						
 						//Use defer to re-enable map tracking after centered 
-						deferred.then(lang.hitch(this, function(){this._notTrackMap=false;}));
+						deferred.then(this._enableMapTracking);
 						
 					}
 				}
+			},
+			
+			_enableMapTracking:function(){
+				this._notTrackMap=false;
 			},
 			
 			/**
@@ -233,6 +245,7 @@ define([
 				//Add handle to map change-extent
 				this._onMapExtentChange = lang.hitch(this, this._onMapExtentChange);
 				this.map.on("extent-change", this._onMapExtentChange);
+				this._enableMapTracking = lang.hitch(this, this._enableMapTracking);
 				
 				//Save current extent and scale
 				this.initialExtent={
@@ -241,7 +254,6 @@ define([
 				};
 				
 				
-				//Init extent from URL
 				this.setExtentFromURL();
 			},
 			
@@ -260,7 +272,8 @@ define([
 						parseInt(extent.xmin).toString() + ","
 						+ parseInt(extent.ymin).toString() + ","
 						+ parseInt(extent.xmax).toString() + ","
-						+ parseInt(extent.ymax).toString();
+						+ parseInt(extent.ymax).toString() + ","
+						+ this.map.spatialReference.wkid;
 					
 					this.updateParam("extent", extent_string);
 				}
@@ -269,7 +282,7 @@ define([
 					var scale = this.map.getScale();
 
 					this.updateParams({
-						"center" : parseInt(center.x).toString()+","+parseInt(center.y).toString(),
+						"center" : parseInt(center.x).toString()+","+parseInt(center.y).toString() + "," + + this.map.spatialReference.wkid,
 						"scale" : scale
 					});
 				}
