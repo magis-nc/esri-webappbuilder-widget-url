@@ -291,10 +291,12 @@ define([
             get: function (force) {
                 this.analyze();
                 if (force) {
-                    var url = "?";
+					var params_pair=[];
                     for (var name in this._CURRENT_URL.params)
-                        url += encodeURIComponent(name) + "=" + encodeURIComponent(this._CURRENT_URL.params[name]) + "&";
-                    this._CURRENT_URL.url = url;
+						if(name)
+							params_pair.push(encodeURIComponent(name) + "=" + encodeURIComponent(this._CURRENT_URL.params[name]));
+                        
+                    this._CURRENT_URL.url = "?"+params_pair.join("&");
                 }
                 return this._CURRENT_URL.url;
             },
