@@ -415,7 +415,7 @@ define([
 						delete(this._CURRENT_URL.params[param]);
 				}
 				return this._update(history_name);
-			},
+			}
         });
 
         return clazz;
