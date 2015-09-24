@@ -253,8 +253,8 @@ define([
 					scale:this.map.getScale()	
 				};
 				
-				//If WAB < 1.1, set extent from url on start (else, let WAB does it)
-				if(!wabVersion || parseFloat(wabVersion) < 1.1)
+				//If WAB < 1.1(official numerotation or 1.2 on code numerotation), set extent from url on start (else, let WAB does it)
+				if(!wabVersion || parseFloat(wabVersion) < 1.2)
 					this.setExtentFromURL();
 			},
 			
