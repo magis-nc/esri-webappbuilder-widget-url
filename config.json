@@ -1,5 +1,6 @@
 {
 	"extent":1,
+	"parseLayers":true,
 	"widgetsData":{
 		"send":false,
 		"listen":false

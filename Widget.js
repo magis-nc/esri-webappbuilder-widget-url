@@ -22,8 +22,8 @@ define([
     'jimu/BaseWidget',
     'dojo/on',
     'dojo/_base/lang',
-	"esri/geometry/Point",
-	"esri/geometry/Extent"
+	'esri/geometry/Point',
+	'esri/geometry/Extent'
   ],
     function (
         declare,
@@ -31,7 +31,7 @@ define([
         on,
         lang,
         Point,
-		Extent		
+		Extent
 	) {
         var clazz = declare([BaseWidget], {
 			name: 'Url',
@@ -39,17 +39,17 @@ define([
 			inPanel: false,
 			hasStyle:false,
 			hasUIFile:false,
-			
+
 			initialExtent:{
 				extent:false,
-				scale:false		
+				scale:false
 			},
-			
+
             /**
              *  On startup
              */
-			startup: function () {	
-				
+			startup: function () {
+
 				//Config
 				this.extentTracking = (this.config.extent != false);
 				if(this.extentTracking)
@@ -57,25 +57,29 @@ define([
 				this.basemapTracking = (this.config.basemap !== false);
 				this.widgets_sendData = (!this.config.widgetsData || this.config.widgetsData.send !== false);
 				this.widgets_listenData = (!this.config.widgetsData || this.config.widgetsData.listen !== false);
-				
-				
+
+
 				//Hitch (pass context for slots)
 				this._trackNavigatorHistory = lang.hitch(this, this._trackNavigatorHistory);
-				
+
 				//Analyze URL
 				this.analyze(true);
-				
+
 				//Init map extent tracking
 				if(this.extentTracking)
 					this._initMapTracking();
-				
-				//Init navigator return and forward in history tracking 
+
+				//Init map extent tracking
+				if(this.config.parseLayers)
+					this._initLayers();
+
+				//Init navigator return and forward in history tracking
 				window.onpopstate = this._trackNavigatorHistory;
-				
+
 				//Listen to all widgets
 				if(this.widgets_listenData)
 					this.fetchData();
-				
+
 				//Send initial params
 				if(this.widgets_sendData){
 					this.publishData({
@@ -87,22 +91,28 @@ define([
 					});
 				}
             },
-			
+
 			/**
 			 *  Slot for communication from other widgets
 			 *  This widget do something if data received have structure like { "toUrl" : {"params:{"var1":"toto", "debug":"true"}, "eraseMode" : false}}
 			 *  NB : eraseMode in data.toUrl is optionnal. Default false. If true, params currently in URL are all deleted. If false, a param in current url is keeped as long as not provided in data.toUrl
 			 */
 			onReceiveData:function(widget_name, widget_id, data){
-				if(!data.toUrl || !data.toUrl.params)
+				if(!data.toUrl)
 					return;
-				
+
 				var eraseMode = (data.toUrl.eraseMode && data.toUrl.eraseMode === true);
-				
+				var history_name = (data.toUrl.history === undefined) ? "" : data.toUrl.history;
+
+				//remove params if asked
+				if(data.toUrl.remove_params)
+					this.removeParams(data.toUrl.remove_params, false);
+
 				//Update Url params
-				this.updateParams(data.toUrl.params, eraseMode);
+				if(data.toUrl.params)
+					this.updateParams(data.toUrl.params, eraseMode, history_name);
 			},
-			
+
 			/**
 			 *  Slot for change in navigation history
 			 */
@@ -114,51 +124,50 @@ define([
 					this.setDefaultExtent();
 				}
 			},
-			
+
 			/**
 			 *  Method to set default extent
 			 */
 			setDefaultExtent:function(){
-				
 				if(this.extentTrackingMode==1){
 					if(!this.initialExtent.extent)
 						return false;
-					
+
 					this._notTrackMap = true;
-					
+
 					var deferred = this.map.setExtent(this.initialExtent.extent);
-						
-					//Use defer to re-enable map tracking after centered 
+
+					//Use defer to re-enable map tracking after centered
 					deferred.then(lang.hitch(this, function(){this._notTrackMap=false;}));
 				}
 				else{
 					if(!this.initialExtent.extent || !this.initialExtent.scale)
 						return false;
-					
+
 					//Ask slot for map extent changing to do nothing !
 					this._notTrackMap = true;
-					
+
 					//Set scale
 					this.map.setScale(this.initialExtent.scale);
-					
+
 					//Center
 					var pt = this.initialExtent.extent.getCenter();
 					var deferred =this.map.centerAt(pt);
-					
-					//Use defer to re-enable map tracking after centered 
+
+					//Use defer to re-enable map tracking after centered
 					deferred.then(lang.hitch(this, function(){this._notTrackMap=false;}));
-					
-				
+
+
 				}
-				
+
 				this.initialExtent={
 					extent:this.map.extent,
 					scale:this.map.getScale()
 				};
-			
+
 			},
-			
-			
+
+
 			/**
 			*  Method to set extent from URL params
 			*/
@@ -169,11 +178,11 @@ define([
 					scale_string =  this.getParam("scale");
 				if(!extent_string)
 					extent_string =  this.getParam("extent");
-				
+
 				if(this.extentTrackingMode==1){
 					if(!extent_string)
 						return false;
-					
+
 					//Extent control
 					var tab = extent_string.split(",");
 					if(tab.length!=4 && tab.length!=5)
@@ -182,14 +191,14 @@ define([
 						if(isNaN(tab[i]))
 							return false;
 					}
-					
+
 					//If wkid passed and wkid different from map do nothing
 					if(tab[4] && this.map.spatialReference.wkid != tab[4])
 						return false;
-					
+
 					//Ask slot for map extent changing to do nothing !
 					this._notTrackMap = true;
-					
+
 					//Set extent
 					var ext = new Extent(
 						parseInt(tab[0]),
@@ -200,64 +209,97 @@ define([
 					);
 					console.log(ext);
 					var deferred = this.map.setExtent(ext);
-						
-					//Use defer to re-enable map tracking after centered 
+
+					//Use defer to re-enable map tracking after centered
 					deferred.then(this._enableMapTracking);
-							
+
 				}
 				else{
 					if(!center_string || !scale_string)
 						return false;
-				
+
 					var p_c = center_string.split(",");
 					var p_s = scale_string;
-					
-					if((p_c.length==2 || p_c.length==3) && !isNaN(p_c[0]) && !isNaN(p_c[1]) && !isNaN(p_s)){					
+
+					if((p_c.length==2 || p_c.length==3) && !isNaN(p_c[0]) && !isNaN(p_c[1]) && !isNaN(p_s)){
 						//If wkid passed and wkid different from map do nothing
 						if(p_c[2] && p_c[2] != this.map.spatialReference.wkid)
 							return false;
-						
+
 						//Ask slot for map extent changing to do nothing !
 						this._notTrackMap = true;
-						
+
 						//Set scale
 						this.map.setScale(p_s);
-						
+
 						//Center
 						var pt = new Point(p_c[0], p_c[1], this.map.spatialReference);
 						var deferred =this.map.centerAt(pt);
-						
-						//Use defer to re-enable map tracking after centered 
+
+						//Use defer to re-enable map tracking after centered
 						deferred.then(this._enableMapTracking);
-						
+
 					}
 				}
 			},
-			
+
 			_enableMapTracking:function(){
 				this._notTrackMap=false;
 			},
-			
+
 			/**
 			 *  Init map extent tracking to add params in URL
 			 */
-			_initMapTracking:function(){				
+			_initMapTracking:function(){
 				//Add handle to map change-extent
 				this._onMapExtentChange = lang.hitch(this, this._onMapExtentChange);
 				this.map.on("extent-change", this._onMapExtentChange);
 				this._enableMapTracking = lang.hitch(this, this._enableMapTracking);
-				
+
 				//Save current extent and scale
 				this.initialExtent={
 					extent:this.map.extent,
-					scale:this.map.getScale()	
+					scale:this.map.getScale()
 				};
-				
-				//If WAB < 1.1(official numerotation or 1.2 on code numerotation), set extent from url on start (else, let WAB does it)
+
+				//init extent from URL if not manage by wab (wab < 1.2 e.g. public 1.1 version)
 				if(!wabVersion || parseFloat(wabVersion) < 1.2)
 					this.setExtentFromURL();
 			},
-			
+
+      /**
+      * init layers visiblity from custom hide & show url parameters
+      */
+      _initLayers:function(){
+        var hide = this.getParam("hide");
+        var show = this.getParam("show");
+        if(hide){
+          hide = hide.split(";")
+          for(var i=0,nb=hide.length;i<nb;i++){
+            var id = hide[i];
+            var l = this.map.getLayer(id);
+            if(l) l.setVisibility(false);
+          }
+        }
+        if(show){
+          show = show.split(";")
+          for(var i=0,nb=show.length;i<nb;i++){
+            var tab = show[i].split(":");
+            id = tab[0];
+            var l = this.map.getLayer(id);
+            if(l && l.setVisibleLayers && tab.length==2){
+              var visibleLayers = tab[1].split(",");
+              visibleLayers.forEach(function(value, index){
+                visibleLayers[index] = parseInt(value);
+              })
+              l.setVisibleLayers(visibleLayers);
+            }
+            if(l) l.setVisibility(true);
+          }
+        }
+
+      },
+
 			/**
 			 *  Slot for map extent change
 			 */
@@ -266,16 +308,16 @@ define([
 				if(this._notTrackMap || !this.extentTracking){
 					return;
 				}
-				
+
 				var extent = this.map.extent;
 				if(this.extentTrackingMode==1){
-					var extent_string = 
+					var extent_string =
 						parseInt(extent.xmin).toString() + ","
 						+ parseInt(extent.ymin).toString() + ","
 						+ parseInt(extent.xmax).toString() + ","
 						+ parseInt(extent.ymax).toString() + ","
 						+ this.map.spatialReference.wkid;
-					
+
 					this.updateParam("extent", extent_string);
 				}
 				else{
@@ -288,7 +330,7 @@ define([
 					});
 				}
 			},
-			
+
 			/**
 			 *  Current URL description
 			 */
@@ -297,7 +339,7 @@ define([
                 "base": false,
                 "params": {}
             },
-			
+
 			/**
 			 *  Get url
 			 *  @param boolean force If true, reconstruct url from _CURRENT_URL
@@ -309,12 +351,12 @@ define([
                     for (var name in this._CURRENT_URL.params)
 						if(name)
 							params_pair.push(encodeURIComponent(name) + "=" + encodeURIComponent(this._CURRENT_URL.params[name]));
-                        
+
                     this._CURRENT_URL.url = "?"+params_pair.join("&");
                 }
                 return this._CURRENT_URL.url;
             },
-            
+
 			/**
              * Analyze URL
              */
@@ -365,9 +407,9 @@ define([
             },
 			_update:function(history_name){
 				var url = this.get(true);
-				if(!history_name)
+				if(!history_name && history_name!== false)
 					history_name = "";
-				
+
 				if(this.widgets_sendData){
 					this.publishData({
 						"url-changed":{
@@ -377,17 +419,19 @@ define([
 						}
 					});
 				}
-				
-				if(!window.history || !window.history.pushState)
-					return false;
-				
-				//Push in browser history
-				window.history.pushState(this._CURRENT_URL.params, history_name, url);
-				
+
 				// Push in wab url params object
 				if(window.queryObject)
 					window.queryObject = this._CURRENT_URL.params;
-				
+
+				if(!window.history || !window.history.pushState || history_name===false)
+					return false;
+
+				//Push in browser history
+				window.history.pushState(this._CURRENT_URL.params, history_name, url);
+
+
+
 				return url;
 			},
             updateParam: function (param_name, param_value, history_name) {
@@ -395,7 +439,7 @@ define([
                 if (!param_name || !param_value)
                     return;
                 this._CURRENT_URL.params[param_name] = param_value;
-				
+
 				return this._update(history_name);
             },
             updateParams: function (params_object, erase_all, history_name) {
